@@ -1,0 +1,38 @@
+{
+	"$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+	"grammars": [
+		{
+			"name": "jsonata",
+			"camelcase": "jsonata",
+			"title": "JSONata",
+			"scope": "source.jsonata",
+			"path": ".",
+			"file-types": ["jsonata"],
+			"highlights": "queries/highlights.scm"
+		}
+	],
+	"metadata": {
+		"version": "0.1.0",
+		"license": "AGPL-3",
+		"description": "JSONata grammar for tree-sitter",
+		"authors": [
+			{
+				"name": "Ahmed AbouEleyoun",
+				"email": "amedoeyes@gmail.com",
+				"url": "https://github.com/amedoeyes"
+			}
+		],
+		"links": {
+			"repository": "https://github.com/amedoeyes/tree-sitter-jsonata"
+		}
+	},
+	"bindings": {
+		"c": true,
+		"go": true,
+		"node": true,
+		"python": true,
+		"rust": true,
+		"swift": true,
+		"zig": false
+	}
+}
