@@ -4,7 +4,7 @@
   };
 
   outputs =
-    { self, nixpkgs }:
+    { nixpkgs, ... }:
     {
       packages = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (
         system:
@@ -14,7 +14,7 @@
         {
           default = pkgs.tree-sitter.buildGrammar {
             language = "jsonata";
-            version = "0.1.0";
+            version = "0.1.1";
             src = ./.;
           };
         }

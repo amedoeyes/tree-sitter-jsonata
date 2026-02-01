@@ -66,6 +66,9 @@
   "?" @operator
   ":" @operator)
 
+(condition_expr
+  "?" @operator)
+
 (transform_expr "|" @operator)
 (filter_expr  "[" @operator)
 (filter_expr  "]" @operator)
