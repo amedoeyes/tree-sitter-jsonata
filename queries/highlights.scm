@@ -3,7 +3,7 @@
 (identifier) @variable
 (bind) @variable
 
-(call_expr (bind) @function)
+(call_expr (expression (access_expr (bind))) @function)
 (call_expr argument: "?" @variable)
 
 (binary_expr
@@ -54,6 +54,7 @@
 ".." @operator
 "~>" @operator
 "&" @operator
+"?" @operator
 "??" @operator
 "?:" @operator
 ":=" @operator
@@ -65,9 +66,6 @@
 (condition_expr
   "?" @operator
   ":" @operator)
-
-(condition_expr
-  "?" @operator)
 
 (transform_expr "|" @operator)
 (filter_expr  "[" @operator)

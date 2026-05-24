@@ -36,15 +36,19 @@ module.exports = grammar({
 				$.paren_expr,
 			),
 
-		function_expr: ($) =>
-			seq("function", "(", sepBy(",", $.bind), ")", "{", $.expression, "}"),
+		function_expr: ($) => seq("function", $.function_params, $.function_body),
+		function_params: ($) => seq("(", sepBy(",", $.bind), ")"),
+		function_body: ($) => seq("{", $.expression, "}"),
 
 		call_expr: ($) =>
-			seq(
-				field("function", choice($.identifier, $.bind)),
-				"(",
-				sepBy(",", field("argument", choice($.expression, "?"))),
-				")",
+			prec(
+				10,
+				seq(
+					field("function", $.expression),
+					"(",
+					sepBy(",", field("argument", choice($.expression, "?"))),
+					")",
+				),
 			),
 
 		wildcard_expr: (_) => prec(10, choice("*", "**")),
@@ -60,10 +64,7 @@ module.exports = grammar({
 					$.expression,
 					"^",
 					"(",
-					choice(
-						$.expression,
-						sepBy(",", seq(choice("<", ">"), $.access_expr)),
-					),
+					sepBy(",", seq(choice("<", ">"), $.expression)),
 					")",
 				),
 			),
@@ -88,37 +89,38 @@ module.exports = grammar({
 		condition_expr: ($) =>
 			prec.right(
 				1,
-				seq($.expression, "?", $.expression, optional(seq(":", $.expression))),
+				seq($.expression, "?", $.expression, seq(":", $.expression)),
 			),
 
 		binary_expr: ($) => {
 			const operators = [
-				[2, "or"],
-				[3, "and"],
-				[4, "??"],
-				[4, "?:"],
-				[4, ".."],
-				[5, "in"],
-				[5, "="],
-				[5, "!="],
-				[5, "<"],
-				[5, ">"],
-				[5, "<="],
-				[5, ">="],
-				[5, "~>"],
-				[6, "&"],
-				[6, "+"],
-				[6, "-"],
-				[7, "*"],
-				[7, "/"],
-				[7, "%"],
-				[8, "."],
-				[9, "#"],
-				[9, "@"],
+				["right", 1, "?"],
+				["left", 2, "or"],
+				["left", 3, "and"],
+				["left", 4, "??"],
+				["left", 4, "?:"],
+				["left", 4, ".."],
+				["left", 5, "in"],
+				["left", 5, "="],
+				["left", 5, "!="],
+				["left", 5, "<"],
+				["left", 5, ">"],
+				["left", 5, "<="],
+				["left", 5, ">="],
+				["left", 5, "~>"],
+				["left", 6, "&"],
+				["left", 6, "+"],
+				["left", 6, "-"],
+				["left", 7, "*"],
+				["left", 7, "/"],
+				["left", 7, "%"],
+				["left", 8, "."],
+				["left", 9, "#"],
+				["left", 9, "@"],
 			];
 			return choice(
-				...operators.map(([bp, op]) =>
-					prec.left(
+				...operators.map(([asc, bp, op]) =>
+					prec[asc](
 						bp,
 						seq(field("left", $.expression), op, field("right", $.expression)),
 					),
@@ -142,10 +144,16 @@ module.exports = grammar({
 		number: (_) => /(0|[1-9][0-9]*)(\.[0-9]+)?([Ee][-+]?[0-9]+)?/,
 
 		string: (_) =>
-			token(
-				choice(
-					seq('"', repeat(choice(/[^"\\]/, /\\./)), '"'),
-					seq("'", repeat(choice(/[^'\\]/, /\\./)), "'"),
+			choice(
+				seq(
+					'"',
+					repeat(choice(/[^\\"\n]+/, seq("\\", /(\"|\\|\/|b|f|n|r|t|u)/))),
+					'"',
+				),
+				seq(
+					"'",
+					repeat(choice(/[^\\'\n]+/, seq("\\", /(\'|\\|\/|b|f|n|r|t|u)/))),
+					"'",
 				),
 			),
 
